@@ -1,5 +1,7 @@
 const express = require('express')
 const mongoose = require("mongoose");
+const { consumeMessages } = require("./services/mqService");
+
 
 require("dotenv").config();
 
@@ -7,6 +9,9 @@ const app = express()
 const PORT = process.env.PORT || 3000;
 
 app.use(express.json());
+
+// RabbitMQ
+consumeMessages()
 
 mongoose
     .connect(process.env.MONGO_URI)
