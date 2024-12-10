@@ -1,0 +1,26 @@
+{
+  "dependencies": {
+    "bcrypt": "^5.1.1",
+    "body-parser": "^1.20.3",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "express-validator": "^7.2.0",
+    "jsonwebtoken": "^9.0.2",
+    "mongodb": "^6.11.0",
+    "mongoose": "^8.8.4"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "supertest": "^7.0.0"
+  },
+  "scripts": {
+    "start": "node server.js"
+  },
+  "name": "usermanagerms",
+  "description": "## Description UserManagerMS est un projet conçu pour gérer des utilisateurs via un ensemble de microservices intégrés. Il met en œuvre une architecture de microservices, une passerelle API, un courtier de messages pour la communication interservices, et un modèle de sécurité basé sur JWT.",
+  "version": "1.0.0",
+  "main": "config.js",
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}

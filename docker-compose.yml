@@ -1,0 +1,69 @@
+version: "3.7"
+
+services:
+  traefik:
+    image: traefik:v2.10
+    command:
+      - "--entrypoints.web.address=:80" # Port HTTP
+      - "--providers.docker=true" # Active la détection automatique des conteneurs Docker
+      - "--api.dashboard=true" # Active le tableau de bord Traefik
+      - "--api.insecure=true"
+    ports:
+      - "80:80" # Port HTTP
+      - "9000:9000" # Tableau de bord Traefik
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock" # Nécessaire pour détecter les conteneurs Docker
+    labels:
+      - "traefik.http.routers.traefik-dashboard.rule=Host(`localhost`) && (PathPrefix(`/api`) || PathPrefix(`/dashboard`))"
+      - "traefik.http.routers.traefik-dashboard.service=api@internal"
+
+  order-service:
+    build:
+      context: ./microservice_order # Assure-toi d’avoir un Dockerfile dans ce dossier
+    labels:
+      - "traefik.http.routers.order-service.rule=PathPrefix(`/order`)"
+      - "traefik.http.middlewares.order-service-stripprefix.stripprefix.prefixes=/order"
+      - "traefik.http.routers.order-service.middlewares=order-service-stripprefix"
+      - "traefik.http.services.order-service.loadbalancer.server.port=3000"
+
+  product-service:
+    build:
+      context: ./microservice_product # Assure-toi d’avoir un Dockerfile dans ce dossier
+    environment:
+      - SPRING_DATA_MONGODB_URI=${SPRING_DATA_MONGODB_URI}
+    labels:
+      - "traefik.http.routers.products-v3.rule=PathPrefix(`/v3`)"
+      - "traefik.http.routers.products-v3.priority=10"
+      - "traefik.http.services.java-service.loadbalancer.server.port=8080"
+
+      # Routeur pour toutes les autres requêtes /products (StripPrefix)
+      - "traefik.http.routers.other-products.rule=PathPrefix(`/products`)"
+      - "traefik.http.routers.other-products.priority=5"
+      - "traefik.http.routers.other-products.middlewares=strip-products"
+      - "traefik.http.middlewares.strip-products.stripprefix.prefixes=/products"
+      - "traefik.http.services.java-service.loadbalancer.server.port=8080"
+
+  user-service:
+    build:
+      context: ./usermanagerms # Assure-toi d’avoir un Dockerfile dans ce dossier
+    labels:
+      - "traefik.http.routers.user-service.rule=PathPrefix(`/user`)"
+      - "traefik.http.middlewares.user-service-stripprefix.stripprefix.prefixes=/user"
+      - "traefik.http.routers.user-service.middlewares=user-service-stripprefix"
+      - "traefik.http.services.user-service.loadbalancer.server.port=4000" # Port exposé par ton service Node.js
+
+  review-service:
+    build:
+      context: ./review-python # Assure-toi d’avoir un Dockerfile dans ce dossier
+    environment:
+      - MONGO_URI=${SPRING_DATA_MONGODB_URI}
+    labels:
+      - "traefik.http.routers.review-json.rule=PathPrefix(`/openapi.js`)"
+      - "traefik.http.routers.review-json.priority=10"
+      - "traefik.http.services.review-service.loadbalancer.server.port=3556"
+
+      - "traefik.http.routers.review-service.rule=PathPrefix(`/review`)"
+      - "traefik.http.routers.review-service.priority=5"
+      - "traefik.http.middlewares.review-service-stripprefix.stripprefix.prefixes=/review"
+      - "traefik.http.routers.review-service.middlewares=review-service-stripprefix"
+      - "traefik.http.services.review-service.loadbalancer.server.port=3556" # Port exposé par ton service Node.js

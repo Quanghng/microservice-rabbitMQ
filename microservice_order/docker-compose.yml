@@ -1,0 +1,21 @@
+version: '3.8'
+
+services:
+  express-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000" # Mappe le port 3000 du conteneur au port 3000 de la machine hôte
+    volumes:
+      - .:/usr/src/app # Monte le projet local dans le conteneur
+      - /usr/src/app/node_modules # Empêche les conflits avec les dépendances locales
+    environment:
+      NODE_ENV: development # Définit la variable d'environnement pour le développement
+    networks:
+      - app_network
+
+networks:
+  app_network:
+    driver: bridge
+    external: true

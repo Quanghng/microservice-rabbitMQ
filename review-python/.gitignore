@@ -1,0 +1,46 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+.env
+.vscode/
+.idea/
+
+# FastAPI
+*.log
+*.db
+*.sqlite
+
+
+# Virtual environment (venv)
+venv/
+.env/
+
+# Pytest cache
+.cache/
+*.egg-info/
+
+# Installation des dépendances
+pip-log.txt
+pip-delete-this-directory.txt
+
+# FastAPI migrations (si tu utilises des migrations)
+migrations/
+
+# Compilations Python
+dist/
+build/
+
+# Tests
+tests/
+
+# IDEs
+.vscode/
+*.iml
+.idea/
+
+# OS generated files
+.DS_Store
+Thumbs.db
